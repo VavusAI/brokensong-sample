@@ -1,0 +1,95 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="robots" content="noindex"><link rel="icon" href="data:,"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Composition · BROKENSONG (sample)</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css"></head><body>
+<main>
+  <div class="crumbs"><a href="browse.html">Compositions</a> › <span id="crumb"></span></div>
+  <h1 id="title"></h1><div id="badges"></div>
+  <div class="grid2" style="margin-top:12px"><dl class="facts" id="facts"></dl><dl class="facts" id="facts2"></dl></div>
+  <div class="viewbar">
+    <div class="seg" role="tablist"><button data-v="both" class="on">Side by side</button><button data-v="score">Edition only</button><button data-v="ms">Manuscript only</button></div>
+    <div class="seg" id="notation" style="display:none"><button data-n="cmn" class="on">Transcription</button><button data-n="mens">Original notation (mensural)</button></div>
+    <div class="legend" id="legend"></div>
+  </div>
+  <div class="panes" id="panes">
+    <div class="pane score"><h4><span>Edition (rendered with Verovio from MEI)</span><span class="pager"><button id="prev">‹</button> <span id="pg">1/1</span> <button id="next">›</button></span></h4><div class="body" id="score"><p class="note">Loading the music engraver…</p></div></div>
+    <div class="pane ms"><h4><span id="mslabel">Manuscript (IIIF)</span><span id="mslink"></span></h4><div class="mirador-host" id="ms"></div></div>
+  </div>
+  <section class="texts" id="texts"></section>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/verovio@4.3.1/dist/verovio-toolkit-wasm.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mirador@3.3.0/dist/mirador.min.js"></script>
+<script src="assets/app.js"></script>
+<script>
+BS.chrome('Compositions');
+const $ = id => document.getElementById(id);
+let tk = null, page = 1, pages = 1;
+const normFol = s => BS.fold(s).replace(/^(f|fol|folio)\.?\s*/, '').replace(/\s+/g, '').replace(/^0+/, '');
+function labelOf(c) { const l = c.label; return typeof l === 'string' ? l : (l && (l.none || l.en || Object.values(l)[0] || [])[0]) || ''; }
+async function showManuscript(c, src) {
+  const host = $('ms');
+  if (!c.iiif) {
+    $('mslabel').textContent = 'Manuscript';
+    const lib = c.links.library_iiif_manifest;
+    host.innerHTML = `<div class="note"><p><b>${BS.esc(src ? src.name : c.siglum)}</b>${c.folio ? ', f. ' + BS.esc(c.folio) : ''}</p>` + (lib
+      ? `<p>The holding library publishes this manuscript through its own viewer but does not let other websites load its images, so the sample links to it instead.</p><p><a href="${lib.replace('/manifest.json', '')}" target="_blank" rel="noopener">Open the manuscript at the library ↗</a></p>`
+      : `<p>DIAMM serves the images of this source to registered users only, so the sample does not show them.</p>${src ? `<p><a href="${src.diamm_url}" target="_blank" rel="noopener">Open the source record on DIAMM ↗</a></p>` : ''}`)
+      + `<p>In the BROKENSONG edition this pane opens the source's images from DIAMM's IIIF server at the page of the piece, with DIAMM's login (IIIF Authorization Flow 2.0) built in.</p></div>`;
+    return;
+  }
+  const want = normFol((c.folio || '').split(',')[0]);
+  let canvasId = c.canvas;
+  if (!canvasId) try {
+    const m = await BS.json(c.iiif);
+    const canvases = m.sequences ? m.sequences[0].canvases : m.items;
+    const hit = canvases.find(cv => normFol(labelOf(cv)) === want) || canvases.find(cv => normFol(labelOf(cv)).endsWith(want));
+    canvasId = hit && (hit['@id'] || hit.id);
+  } catch (e) {
+    host.innerHTML = `<div class="note">The holding library's image server did not answer (${BS.esc(e.message)}). <a href="${c.iiif}" target="_blank" rel="noopener">IIIF manifest ↗</a></div>`; return;
+  }
+  $('mslabel').textContent = `Manuscript · f. ${c.folio} (IIIF, Mirador)`;
+  Mirador.viewer({ id: 'ms', windows: [{ manifestId: c.iiif, canvasId, thumbnailNavigationPosition: 'far-bottom' }],
+    window: { allowClose: false, allowMaximize: false, allowFullscreen: true, sideBarOpenByDefault: false, defaultView: 'single' },
+    workspaceControlPanel: { enabled: false }, workspace: { showZoomControls: true } });
+}
+function renderPage() { $('score').innerHTML = tk.renderToSVG(page); $('pg').textContent = `${page}/${pages}`; }
+function layout() {
+  if (!tk) return;
+  const w = $('score').clientWidth - 16, scale = 34;
+  tk.setOptions({ scale, pageWidth: Math.max(600, Math.round(w * 100 / scale)), pageHeight: 60000, adjustPageHeight: true, breaks: 'auto', header: 'none', footer: 'none', pageMarginTop: 40, pageMarginLeft: 30, pageMarginRight: 30, spacingStaff: 10 });
+  tk.redoLayout(); pages = tk.getPageCount(); page = Math.min(page, pages); renderPage();
+}
+(async () => {
+  const [comps, srcs] = await Promise.all([BS.json('data/compositions.json'), BS.json('data/sources.json')]);
+  const c = comps.find(x => x.id === BS.q('id')) || comps[0], src = srcs.find(s => s.siglum === c.siglum);
+  document.title = `${c.title} · BROKENSONG (sample)`;
+  $('crumb').textContent = c.title; $('title').textContent = c.title; $('badges').innerHTML = BS.badgeRow(c);
+  const row = (k, v) => v ? `<dt>${k}</dt><dd>${v}</dd>` : '';
+  $('facts').innerHTML = row('Composer', BS.esc(c.composer)) + row('Genre', BS.esc(c.genre)) + row('Voices', BS.esc(c.voices.join(', '))) + row('Texts', BS.esc(c.language)) + row('Length', c.bars + ' bars in the transcription');
+  $('facts2').innerHTML = row('Source', src ? `<a href="source.html?id=${encodeURIComponent(src.id)}">${BS.esc(src.name)}</a>` : BS.esc(c.siglum)) + row('Folio', BS.esc(c.folio)) + row('Original clefs', BS.esc(c.clefs))
+    + row('State', c.fragmentary ? `Fragmentary: ${BS.esc(c.reconstructed_bars)} reconstructed` : 'Complete') + row('Links', [c.links.DIAMM_composition_record && `<a href="${c.links.DIAMM_composition_record}" target="_blank" rel="noopener">DIAMM composition ↗</a>`, `<a href="data/mei/${c.id}.mei" download>Download MEI</a>`].filter(Boolean).join(' · '));
+  $('legend').innerHTML = c.fragmentary ? `<span><i style="background:#1f1b16"></i>Surviving in the source</span><span><i style="background:var(--recon)"></i>Editorial reconstruction</span>` : '';
+  $('texts').innerHTML = '<h2 style="margin-top:.6rem">Texts</h2>' + Object.entries(c.texts).map(([v, t]) => `<h3>${BS.esc(v)}</h3><p>${BS.esc(t)}</p>`).join('');
+  document.querySelectorAll('.seg button').forEach(b => b.onclick = () => {
+    document.querySelectorAll('.seg button').forEach(x => x.classList.toggle('on', x === b));
+    $('panes').className = 'panes' + (b.dataset.v === 'score' ? ' score-only' : b.dataset.v === 'ms' ? ' ms-only' : ''); layout();
+  });
+  $('prev').onclick = () => { if (page > 1) { page--; renderPage(); } }; $('next').onclick = () => { if (page < pages) { page++; renderPage(); } };
+  showManuscript(c, src);
+  const mei = await (await fetch(`data/mei/${c.id}.mei`)).text();
+  const mens = c.mensural ? await (await fetch(`data/mei/${c.mensural}`)).text() : null;
+  const start = () => {
+    tk = new verovio.toolkit(); tk.loadData(mei); layout(); window.__ready = true;
+    if (mens) {
+      $('notation').style.display = 'inline-flex';
+      document.querySelectorAll('#notation button').forEach(btn => btn.onclick = () => {
+        document.querySelectorAll('#notation button').forEach(x => x.classList.toggle('on', x === btn));
+        tk.loadData(btn.dataset.n === 'mens' ? mens : mei); page = 1; layout();
+        $('legend').innerHTML = btn.dataset.n === 'mens' ? `<span>${BS.esc(c.mensural_note)}</span>` : '';
+      });
+    }
+  };
+  if (verovio.module.calledRun) start(); else verovio.module.onRuntimeInitialized = start;
+  addEventListener('resize', () => layout());
+})();
+</script></body></html>

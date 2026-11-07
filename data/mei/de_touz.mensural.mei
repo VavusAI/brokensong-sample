@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-model href="https://music-encoding.org/schema/5.0/mei-Mensural.rng" type="application/xml" schematypens="http://relaxng.org/ns/structure/1.0"?>
+<?xml-model href="https://music-encoding.org/schema/5.0/mei-Mensural.rng" type="application/xml" schematypens="http://purl.oclc.org/dsdl/schematron"?>
+<mei xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.music-encoding.org/ns/mei" meiversion="5.0">
+   <meiHead xml:id="m-2">
+      <fileDesc>
+         <titleStmt>
+            <title>Excerpt of De touz (triplum and tenor)</title>
+         </titleStmt>
+         <pubStmt/>
+      </fileDesc>
+      <encodingDesc xml:id="e3i1x191">
+         <appInfo xml:id="a4xlkic">
+            <application xml:id="arv6yau2" startdate="2023-06-27T17:34:29" version="0.9.1" enddate="2023-07-11T10:43:45">
+               <name xml:id="nnjlfl5">mei-friend</name>
+               <p xml:id="ptc88kd1">First edit by mei-friend 0.8.7-p, 24 May 2023.</p>
+            </application>
+         </appInfo>
+      </encodingDesc>
+   </meiHead>
+   <music xml:id="m-25">
+      <body xml:id="m-26">
+         <mdiv xml:id="mcl4j6m1">
+            <score xml:id="so107id1">
+               <scoreDef xml:id="srkqdyo1">
+                  <staffGrp n="1" xml:id="sg3cfqj1">
+                     <staffDef n="1" lines="5" notationtype="mensural.black"
+                               clef.line="3" clef.shape="C" keysig="0" 
+                               modusmaior="2" modusminor="3" tempus="3" prolatio="2" xml:id="s86tk8k2">
+                        <label xml:id="l86s122">triplum</label>
+                     </staffDef>
+                     <staffDef n="2" lines="5" notationtype="mensural.black" 
+                               clef.line="3" clef.shape="F" keysig="0" 
+                               modusmaior="2" modusminor="3" tempus="3" prolatio="2" xml:id="srbxplw2">
+                        <label xml:id="lpuge671">tenor</label>
+                     </staffDef>
+                  </staffGrp>
+               </scoreDef>
+               <section xml:id="sj8vohq1">
+                  <staff n="1" xml:id="shgnqzx1">
+                     <layer n="1" xml:id="ll8wvng">
+                        <note dur="brevis" oct="3" pname="b" dur.quality="imperfecta" xml:id="n028w0c1"/>
+                        <note dur="semibrevis" oct="3" pname="g" xml:id="n26n5fh1">
+                           <verse n="1" xml:id="vq8hslq2">
+                              <syl wordpos="i" xml:id="sq5ll8l1">de</syl>
+                           </verse>
+                        </note>
+                        <note dur="brevis" oct="4" pname="d" dur.quality="imperfecta" xml:id="nba5wq8"/>
+                        <note dur="semibrevis" oct="3" pname="a" xml:id="n2e4zbk1"/>
+                        <note dur="brevis" oct="4" pname="c" dur.quality="imperfecta" xml:id="ndhof1m1">
+                           <verse n="1" xml:id="v5a3s6n2">
+                              <syl con="d" wordpos="i" xml:id="sk7mzfu2">cha</syl>
+                           </verse>
+                        </note>
+                        <note dur="semibrevis" oct="3" pname="b" xml:id="nhcnh9c1"/>
+                        <barLine form="dashed" xml:id="bb7z3kh"/>
+                        <note dur="brevis" oct="4" pname="c" xml:id="nh4gf4s1">
+                           <verse n="1" xml:id="v03tuyk2">
+                              <syl wordpos="t" xml:id="s0u4p9q1">ton</syl>
+                           </verse>
+                        </note>
+                        <rest dur="brevis" xml:id="rme1phk2"/>
+                        <note dur="semibrevis" oct="4" pname="c" dur.quality="perfecta" xml:id="n6qu2bh1">
+                           <verse n="1" xml:id="vgrxucb">
+                              <syl wordpos="i" xml:id="sbnhs2l1">le</syl>
+                           </verse>
+                        </note>
+                        <dot form="aug" xml:id="dkf8f0i2"/>
+                        <note dur="semibrevis" oct="4" pname="f" xml:id="n1pu5pm2">
+                           <verse n="1" xml:id="vaeqj7a">
+                              <syl wordpos="i" xml:id="s9gd05k2">sens</syl>
+                           </verse>
+                        </note>
+                        <note dur="minima" oct="4" pname="e" xml:id="nwyvwib">
+                           <verse n="1" xml:id="vl0ls9s2">
+                              <syl wordpos="i" xml:id="szkmgwo1">qui</syl>
+                           </verse>
+                        </note>
+                        <barLine form="dashed" xml:id="br47rnt2"/>
+                        <note dur="semibrevis" oct="4" pname="d" xml:id="nl8by7">
+                           <verse n="1" xml:id="vreyujh1">
+                              <syl wordpos="i" xml:id="s2t6i591">fut</syl>
+                           </verse>
+                        </note>
+                        <note dur="minima" oct="4" pname="e" xml:id="nqkbs1y2">
+                           <verse n="1" xml:id="v8qvr5n2">
+                              <syl wordpos="i" xml:id="s7p3wcq1">en</syl>
+                           </verse>
+                        </note>
+                        <note dur="semibrevis" oct="4" pname="g" xml:id="n3ib9b8">
+                           <verse n="1" xml:id="vmupywv1">
+                              <syl con="d" wordpos="i" xml:id="sdik5pi1">sa</syl>
+                           </verse>
+                        </note>
+                        <note dur="minima" oct="4" pname="g" xml:id="np0qbwh">
+                           <verse n="1" xml:id="v59nvr51">
+                              <syl con="d" wordpos="m" xml:id="sjxta17">le</syl>
+                           </verse>
+                        </note>
+                        <note dur="brevis" oct="4" pname="d" num="6" numbase="5" xml:id="n6w54xi1">
+                           <verse n="1" xml:id="vs2bi5l2">
+                              <syl con="u" wordpos="t" xml:id="sg4lahg">mon,</syl>
+                           </verse>
+                        </note>
+                        <note dur="minima" oct="4" pname="e" xml:id="nh1gohp2"/>
+                        <dot form="div" xml:id="df5ce3f1"/>
+                        <note dur="semibrevis" oct="4" pname="d" xml:id="npc1w7y2">
+                           <verse n="1" xml:id="vigetr8">
+                              <syl wordpos="i" xml:id="s8c0rh9">la</syl>
+                           </verse>
+                        </note>
+                        <note dur="semibrevis" oct="4" pname="d" xml:id="nsou372">
+                           <verse n="1" xml:id="vmoboz2">
+                              <syl con="d" wordpos="i" xml:id="s3zv5y21">lar</syl>
+                           </verse>
+                        </note>
+                        <note dur="semibrevis" oct="4" pname="d" xml:id="nceyrsy2">
+                           <verse n="1" xml:id="vjpic27">
+                              <syl con="d" wordpos="m" xml:id="s4t58fe1">ges</syl>
+                           </verse>
+                        </note>
+                        <barLine form="dashed" xml:id="berlb7y2"/>
+                     </layer>
+                  </staff>
+                  <staff n="2" xml:id="sq4ou3w1">
+                     <layer n="1" xml:id="lw5s7jo1">
+                        <note dur="brevis" oct="3" pname="e" xml:id="n9vqkdj1">
+                           <verse n="1" xml:id="vfxtrc2">
+                              <syl wordpos="i" xml:id="sa9g8ft1">ES</syl>
+                           </verse>
+                        </note>
+                        <rest dur="semibrevis" xml:id="r9kxsoj1"/>
+                        <note dur="semibrevis" oct="3" pname="d" dur.quality="altera" xml:id="nqfsav91">
+                           <verse n="1" xml:id="vj5y1yk2">
+                              <syl wordpos="i" xml:id="se7qroy1">AMICA</syl>
+                           </verse>
+                        </note>
+                        <note dur="brevis" oct="3" pname="c" xml:id="n51n1lu2">
+                           <verse n="1" xml:id="vk5ht9u2">
+                              <syl wordpos="i" xml:id="suxdd5i2">MEA</syl>
+                           </verse>
+                        </note>
+                        <barLine form="dashed" xml:id="bm1zkte"/>
+                        <note dur="longa" oct="3" pname="f" xml:id="nznaa7i1"/>
+                        <barLine form="dashed" xml:id="blgywm4"/>
+                        <note dur="longa" oct="3" pname="g" xml:id="n5mysr11"/>
+                        <barLine form="dashed" xml:id="b5h296q2"/>
+                     </layer>
+                  </staff>
+               </section>
+            </score>
+         </mdiv>
+      </body>
+   </music>
+</mei>

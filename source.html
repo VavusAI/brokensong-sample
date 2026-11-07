@@ -1,0 +1,38 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="robots" content="noindex"><link rel="icon" href="data:,"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Source · BROKENSONG (sample)</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css"></head><body>
+<main>
+  <div class="crumbs"><a href="browse.html?tab=sources">Sources</a> › <span id="crumb"></span></div>
+  <h1 id="title"></h1><div class="meta" id="sub"></div>
+  <div class="grid2" style="margin-top:14px;grid-template-columns:1fr 1.35fr">
+    <div><dl class="facts" id="facts"></dl>
+      <h2>Compositions in this source</h2><table class="list" id="contents"></table></div>
+    <div class="pane" style="min-height:640px"><h4><span id="mslabel">Manuscript images (IIIF, Mirador)</span><span></span></h4><div class="mirador-host" id="ms"></div></div>
+  </div>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/mirador@3.3.0/dist/mirador.min.js"></script>
+<script src="assets/app.js"></script>
+<script>
+BS.chrome('Sources');
+const $ = id => document.getElementById(id);
+(async () => {
+  const [comps, srcs] = await Promise.all([BS.json('data/compositions.json'), BS.json('data/sources.json')]);
+  const s = srcs.find(x => x.id === BS.q('id')) || srcs[0];
+  document.title = `${s.name} · BROKENSONG (sample)`;
+  $('crumb').textContent = s.name; $('title').textContent = s.name; $('sub').textContent = [s.city, s.archive].filter(Boolean).join(' · ');
+  const row = (k, v) => v ? `<dt>${k}</dt><dd>${v}</dd>` : '';
+  $('facts').innerHTML = row('Date', BS.esc(s.date)) + row('Type', BS.esc(s.source_type)) + row('Material', BS.esc(s.surface)) + row('Size', BS.esc(s.measurements))
+    + row('Notation', BS.esc(s.notations.join(', '))) + row('Description', BS.esc(s.summary)) + row('Records', `<a href="${s.diamm_url}" target="_blank" rel="noopener">DIAMM source record ↗</a> <span class="meta">(data loaded from the DIAMM API)</span>`);
+  const list = comps.filter(c => c.siglum === s.siglum && s.siglum).sort((a, b) => a.title.localeCompare(b.title));
+  $('contents').innerHTML = list.length ? `<tr><th>Composition</th><th>Folio</th><th>Voices</th></tr>` + list.map(c => `<tr><td><a href="composition.html?id=${c.id}">${BS.esc(c.title)}</a>${c.fragmentary ? ' <span class="badge frag">Fragmentary</span>' : ''}</td><td>${BS.esc(c.folio)}</td><td>${c.nvoices}</td></tr>`).join('')
+    : `<tr><td class="meta">No compositions from this source are encoded in the sample yet. In the edition, the source page lists its full inventory from the project's data.</td></tr>`;
+  if (s.manifest && s.images_open) {
+    Mirador.viewer({ id: 'ms', windows: [{ manifestId: s.manifest, thumbnailNavigationPosition: 'far-bottom' }],
+      window: { allowClose: false, allowMaximize: false, sideBarOpenByDefault: false, defaultView: 'single' },
+      workspaceControlPanel: { enabled: false } });
+  } else {
+    $('ms').innerHTML = `<div class="note">${s.library_viewer ? `<p>The holding library publishes this manuscript in its own viewer but does not let other websites load its images. <a href="${s.library_viewer.replace('/manifest.json', '')}" target="_blank" rel="noopener">Open it at the library ↗</a></p>` : '<p>DIAMM serves the images of this source to registered users only, so the sample does not show them.</p>'}<p>In the edition this viewer opens the source's images, including the processed multispectral images, from DIAMM's IIIF server, with DIAMM's login (IIIF Authorization Flow 2.0) built in.</p><p><a href="${s.diamm_url}" target="_blank" rel="noopener">View the source on DIAMM ↗</a></p></div>`;
+  }
+})();
+</script></body></html>

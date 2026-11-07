@@ -1,0 +1,30 @@
+{
+ "repaired": [
+  {
+   "file": "garison.mei",
+   "fixes": 15
+  },
+  {
+   "file": "in_nova.mei",
+   "fixes": 12
+  },
+  {
+   "file": "nazarea.mei",
+   "fixes": 8
+  }
+ ],
+ "skipped": [],
+ "reconstruction_demo": {
+  "file": "305.mei",
+  "voice": "tenor (staff 3)",
+  "bars": "5-12",
+  "elements_wrapped": 16
+ },
+ "normalised": [
+  {
+   "file": "gratissima.mei",
+   "composer": "Phliippe de Vitry"
+  }
+ ],
+ "mensural_view": "de_touz"
+}

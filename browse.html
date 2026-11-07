@@ -1,0 +1,59 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="robots" content="noindex"><link rel="icon" href="data:,"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Browse · BROKENSONG (sample)</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css"></head><body>
+<main>
+  <div class="layout">
+    <aside class="filters" id="filters">
+      <label for="q">Search titles and texts</label><input id="q" type="search" placeholder="e.g. Fauvel, virgo, amours">
+      <label for="f-src">Source</label><select id="f-src"><option value="">All sources</option></select>
+      <label for="f-voices">Number of voices</label><select id="f-voices"><option value="">Any</option><option>3</option><option>4</option></select>
+      <label for="f-lang">Language of texts</label><select id="f-lang"><option value="">Any</option></select>
+      <label for="f-comp">Composer</label><select id="f-comp"><option value="">Any</option></select>
+      <label>Show only</label>
+      <div class="chk"><input type="checkbox" id="f-img"><span>with manuscript images</span></div>
+      <div class="chk"><input type="checkbox" id="f-frag"><span>fragmentary works</span></div>
+    </aside>
+    <section class="results">
+      <div class="bar"><div class="tabs"><button id="t-c" class="on">Compositions</button><button id="t-s">Sources</button></div><div class="meta" id="count"></div></div>
+      <table class="list" id="tbl"></table>
+    </section>
+  </div>
+</main>
+<script src="assets/app.js"></script>
+<script>
+BS.chrome(BS.q('tab') === 'sources' ? 'Sources' : 'Compositions');
+let comps = [], srcs = [], tab = BS.q('tab') === 'sources' ? 's' : 'c', sortKey = 'title', sortDir = 1;
+const $ = id => document.getElementById(id);
+function opts(sel, values) { [...new Set(values)].filter(Boolean).sort().forEach(v => sel.insertAdjacentHTML('beforeend', `<option>${BS.esc(v)}</option>`)); }
+function render() {
+  $('t-c').classList.toggle('on', tab === 'c'); $('t-s').classList.toggle('on', tab === 's');
+  const q = BS.fold($('q').value).trim().split(/\s+/).filter(Boolean);
+  if (tab === 's') {
+    const rows = srcs.filter(s => q.every(w => BS.fold([s.name, s.city, s.archive, s.date, s.summary].join(' ')).includes(w)));
+    $('count').textContent = rows.length + ' sources';
+    $('tbl').innerHTML = `<tr><th>Source</th><th>Date</th><th>Holding library</th><th>Notation</th><th>Works here</th><th>Images</th></tr>` + rows.map(s => `<tr>
+      <td><a href="source.html?id=${encodeURIComponent(s.id)}">${BS.esc(s.name)}</a></td><td>${BS.esc(s.date)}</td><td>${BS.esc(s.city)}<div class="meta">${BS.esc(s.archive)}</div></td>
+      <td>${BS.esc(s.notations.join(', '))}</td><td>${s.compositions.length}</td><td>${s.images_open ? '<span class="badge img">Open IIIF</span>' : s.library_viewer ? '<span class="badge">Library viewer</span>' : '<span class="badge">DIAMM login</span>'}</td></tr>`).join('');
+    return;
+  }
+  let rows = comps.filter(c => (!$('f-src').value || c.siglum === $('f-src').value) && (!$('f-voices').value || String(c.nvoices) === $('f-voices').value)
+    && (!$('f-lang').value || c.language === $('f-lang').value) && (!$('f-comp').value || c.composer === $('f-comp').value)
+    && (!$('f-img').checked || c.iiif) && (!$('f-frag').checked || c.fragmentary) && q.every(w => c.search.includes(w)));
+  rows.sort((a, b) => (a[sortKey] > b[sortKey] ? 1 : a[sortKey] < b[sortKey] ? -1 : 0) * sortDir);
+  $('count').textContent = `${rows.length} of ${comps.length} compositions`;
+  const th = (k, t) => `<th data-k="${k}">${t}${sortKey === k ? (sortDir > 0 ? ' ▲' : ' ▼') : ''}</th>`;
+  $('tbl').innerHTML = `<tr>${th('title', 'Title')}${th('composer', 'Composer')}${th('siglum', 'Source')}${th('nvoices', 'Voices')}${th('language', 'Language')}${th('bars', 'Length (bars)')}</tr>` + rows.map(c => `<tr>
+    <td><a href="composition.html?id=${c.id}">${BS.esc(c.title)}</a><div class="inc">${BS.esc(BS.incipit(c))}</div><div>${c.fragmentary ? '<span class="badge frag">Fragmentary</span>' : ''}${c.iiif ? '<span class="badge img">Images</span>' : ''}</div></td>
+    <td>${BS.esc(c.composer)}</td><td>${BS.esc(c.siglum)}${c.folio ? `<div class="meta">f. ${BS.esc(c.folio)}</div>` : ''}</td><td>${c.nvoices}</td><td>${BS.esc(c.language)}</td><td>${c.bars}</td></tr>`).join('');
+  document.querySelectorAll('#tbl th[data-k]').forEach(h => h.onclick = () => { const k = h.dataset.k; sortDir = sortKey === k ? -sortDir : 1; sortKey = k; render(); });
+}
+(async () => {
+  [comps, srcs] = await Promise.all([BS.json('data/compositions.json'), BS.json('data/sources.json')]);
+  opts($('f-src'), comps.map(c => c.siglum)); opts($('f-lang'), comps.map(c => c.language)); opts($('f-comp'), comps.map(c => c.composer));
+  if (BS.q('q')) $('q').value = BS.q('q');
+  ['q', 'f-src', 'f-voices', 'f-lang', 'f-comp', 'f-img', 'f-frag'].forEach(id => $(id).addEventListener('input', render));
+  $('t-c').onclick = () => { tab = 'c'; render(); }; $('t-s').onclick = () => { tab = 's'; render(); };
+  render();
+})();
+</script></body></html>

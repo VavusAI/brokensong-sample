@@ -1,0 +1,35 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="robots" content="noindex"><link rel="icon" href="data:,"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BROKENSONG · Online edition (sample)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css"></head><body>
+<main>
+  <section class="hero">
+    <div><h1>Medieval polyphony from its broken books</h1>
+      <p class="lead">Explore the sources and compositions of insular polyphony: read each piece as a modern score beside the manuscript page it survives on, search its texts, and see clearly what survives and what has been reconstructed.</p>
+      <p><a href="browse.html"><b>Browse the compositions →</b></a> &nbsp; <a href="browse.html?tab=sources"><b>Browse the sources →</b></a></p></div>
+    <div class="stats" id="stats"></div>
+  </section>
+  <h2>Featured</h2>
+  <div class="cards" id="featured"></div>
+  <h2>Sources in this sample</h2>
+  <div class="cards" id="srcs"></div>
+</main>
+<script src="assets/app.js"></script>
+<script>
+BS.chrome('Home');
+(async () => {
+  const [s, comps, srcs] = await Promise.all([BS.json('data/stats.json'), BS.json('data/compositions.json'), BS.json('data/sources.json')]);
+  const pct = Math.round(100 * s.fragmentary / s.compositions);
+  document.getElementById('stats').innerHTML = [
+    [s.compositions, 'compositions'], [s.sources, 'manuscript sources'], [s.with_images, 'linked to page images'],
+    [s.voices3, 'for three voices'], [s.voices4, 'for four voices'], [pct + '%', 'incomplete (with reconstruction)']]
+    .map(([n, t]) => `<div class="stat"><b>${n}</b><span>${t}</span></div>`).join('');
+  const pick = ['305', 'flos', 'adesto'].map(id => comps.find(c => c.id === id)).filter(Boolean);
+  document.getElementById('featured').innerHTML = pick.map(c => `<a class="card" href="composition.html?id=${c.id}">
+     <div class="meta">${BS.esc(c.siglum)}${c.folio ? ', f. ' + BS.esc(c.folio) : ''}</div><h3>${BS.esc(c.title)}</h3>
+     <div class="meta" style="font-style:italic">${BS.esc(BS.incipit(c))}</div><div style="margin-top:8px">${BS.badgeRow(c)}</div></a>`).join('');
+  document.getElementById('srcs').innerHTML = srcs.map(x => `<a class="card" href="source.html?id=${encodeURIComponent(x.id)}">
+     <div class="meta">${BS.esc(x.city)}${x.archive ? ' · ' + BS.esc(x.archive) : ''}</div><h3>${BS.esc(x.name)}</h3>
+     <div class="meta">${BS.esc(x.date)}</div><div style="margin-top:8px"><span class="badge">${x.compositions.length} composition${x.compositions.length === 1 ? "" : "s"}</span>${x.images_open ? '<span class="badge img">Open IIIF images</span>' : x.library_viewer ? '<span class="badge">Library viewer</span>' : '<span class="badge">Images via DIAMM login</span>'}</div></a>`).join('');
+})();
+</script></body></html>
