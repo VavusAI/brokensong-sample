@@ -8,7 +8,7 @@
   <div class="grid2" style="margin-top:12px"><dl class="facts" id="facts"></dl><dl class="facts" id="facts2"></dl></div>
   <div class="viewbar">
     <div class="seg" role="tablist"><button data-v="both" class="on">Side by side</button><button data-v="score">Edition only</button><button data-v="ms">Manuscript only</button></div>
-    <div class="seg" id="notation" style="display:none"><button data-n="cmn" class="on">Transcription</button><button data-n="mens">Original notation (mensural)</button></div>
+    <div class="seg" id="notation" style="display:none"><button data-n="cmn" class="on">Transcription</button><button data-n="mens">Original notation (parts)</button><button data-n="mensal">Original notation, voices aligned</button></div>
     <div class="legend" id="legend"></div>
   </div>
   <div class="panes" id="panes">
@@ -84,8 +84,10 @@ function layout() {
       $('notation').style.display = 'inline-flex';
       document.querySelectorAll('#notation button').forEach(btn => btn.onclick = () => {
         document.querySelectorAll('#notation button').forEach(x => x.classList.toggle('on', x === btn));
-        tk.loadData(btn.dataset.n === 'mens' ? mens : mei); page = 1; layout();
-        $('legend').innerHTML = btn.dataset.n === 'mens' ? `<span>${BS.esc(c.mensural_note)}</span>` : '';
+        const n = btn.dataset.n;
+        tk.setOptions({ mensuralToMeasure: n === 'mensal' });   // Verovio aligns the mensural voices into measures
+        tk.loadData(n === 'cmn' ? mei : mens); page = 1; layout();
+        $('legend').innerHTML = n === 'cmn' ? '' : `<span>${BS.esc(c.mensural_note)}${n === 'mensal' ? ' Voices aligned by Verovio (mensuralToMeasure).' : ''}</span>`;
       });
     }
   };

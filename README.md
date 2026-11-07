@@ -5,7 +5,7 @@ A working sample prepared by DCI Brands LLC for Maynooth University's tender PCO
 Live: https://vavusai.github.io/brokensong-sample/
 
 ## How it works
-A static site, as the edition would be on GitHub Pages: `build/build.py` reads MEI encodings and DIAMM source records (DIAMM public API) and writes JSON indexes; the browser does the rest. Music is engraved by Verovio from MEI, manuscript images open in Mirador from IIIF servers, and browse, filters and search (accent- and u/v, i/j-insensitive) run from the prebuilt indexes. One passage is encoded as an editorial reconstruction (MEI `<supplied>`) to show how reconstructed material is displayed, and one piece can be switched to its original black mensural notation.
+A static site, as the edition would be on GitHub Pages: `build/build.py` reads MEI encodings and DIAMM source records (DIAMM public API) and writes JSON indexes; the browser does the rest. Music is engraved by Verovio from MEI, manuscript images open in Mirador from IIIF servers, and browse, filters and search (accent- and u/v, i/j-insensitive) run from the prebuilt indexes. One passage is encoded as an editorial reconstruction (MEI `<supplied>`) to show how reconstructed material is displayed, and one piece can be switched to its original black mensural notation, as separate parts or with the voices aligned by Verovio.
 
 ## Credits and licences
 - Music encodings: *Measuring Polyphony: Digital Encodings of Late Medieval Music*, ed. Karen Desmond (measuringpolyphony.org), CC BY 3.0. Three files with malformed attributes were repaired by the build step; the tenor of *Li dous maus* (Mo, f. 349v), bars 5-12, is marked as reconstructed for demonstration only.
