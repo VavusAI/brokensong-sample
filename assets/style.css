@@ -75,3 +75,45 @@ dl.facts dd{margin:0}
 footer.site{border-top:1px solid var(--rule);background:var(--paper);color:var(--muted);font-size:.82rem}
 footer.site .in{max-width:1240px;margin:0 auto;padding:14px 20px}
 @media (max-width:900px){.hero,.layout,.panes,.grid2{grid-template-columns:1fr}.cards{grid-template-columns:1fr}nav.main{display:none}}
+/* Home: manuscript picture beside the introduction */
+.hero.hero-ms{grid-template-columns:1.3fr .7fr;align-items:stretch;padding:0;overflow:hidden}
+.hero-ms .hero-text{padding:30px 30px 26px}
+.hero-ms .kicker{margin:0 0 .3rem;font-size:.8rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--red)}
+.hero-ms h1{font-size:2.5rem;line-height:1.1;margin:.1rem 0 .7rem}
+.hero-ms .cta{display:flex;gap:10px;flex-wrap:wrap;margin:1.1rem 0 1.4rem}
+.btn{display:inline-block;padding:9px 16px;border-radius:8px;background:var(--red);color:#fff;text-decoration:none;font-weight:600;border:1px solid var(--red)}
+.btn.ghost{background:transparent;color:var(--red)}
+.btn:hover{filter:brightness(1.08)}
+.hero-ms .stats{grid-template-columns:repeat(6,1fr);gap:8px}
+.hero-ms .stat{padding:9px 10px}.hero-ms .stat b{font-size:1.7rem}.hero-ms .stat span{font-size:.78rem;line-height:1.25;display:block}
+.hero-fig{margin:0;position:relative;background:#3a2a1c;min-height:440px}
+.hero-fig img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 4%;display:block}
+.hero-fig figcaption{position:absolute;left:0;right:0;bottom:0;padding:22px 14px 10px;font-size:.76rem;line-height:1.35;color:#fbf6ec;background:linear-gradient(transparent,rgba(30,20,12,.82))}
+.hero-fig figcaption a{color:#fbf6ec}
+/* Composition: listening bar */
+.player{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--paper);border:1px solid var(--rule);border-radius:10px;padding:8px 12px;margin:0 0 10px;scroll-margin-top:10px}
+.player button{font:inherit;font-weight:600;border:1px solid var(--rule);background:#fff;border-radius:7px;padding:6px 12px;cursor:pointer}
+.player button.play{background:var(--red);border-color:var(--red);color:#fff;min-width:96px}
+.player button:disabled{opacity:.5;cursor:default}
+.player .time{font-variant-numeric:tabular-nums;color:var(--muted);font-size:.9rem;min-width:84px}
+.player .seek{flex:1 1 160px;accent-color:var(--red)}
+.player .rate,.player .voices{font-size:.88rem;color:var(--muted);display:flex;align-items:center;gap:8px}
+.player select{font:inherit;padding:3px 6px;border:1px solid var(--rule);border-radius:6px;background:#fff}
+.player .voices label{display:inline-flex;align-items:center;gap:4px;color:var(--ink)}
+.player .msg{font-size:.85rem;color:var(--muted)}
+.player .msg:empty{display:none}
+#score g.playing,#score g.playing *{fill:#1d5fa8!important;stroke:#1d5fa8!important}
+#score rect.flash{fill:#e9c46a;animation:flash 4s ease-out forwards}
+@keyframes flash{0%{fill-opacity:.75}100%{fill-opacity:.28}}
+/* Composition: commentary */
+.commentary{background:var(--paper);border:1px solid var(--rule);border-radius:10px;padding:6px 18px 12px;margin-top:16px;scroll-margin-top:10px}
+.commentary h3{font-size:1.1rem;margin:.8rem 0 .25rem}
+.commentary p{margin:.2rem 0 .5rem;max-width:90ch}
+.commentary .hint{font-size:.85rem;color:var(--muted)}
+.commentary ul.readings{margin:.2rem 0 .6rem;padding-left:1.2rem;max-width:95ch}
+.commentary ul.readings li{margin:.25rem 0}
+.commentary a.barref{font-weight:700;text-decoration:none;border-bottom:1px dotted var(--blue)}
+.commentary .credit{font-size:.88rem;color:var(--muted);border-top:1px solid var(--rule);padding-top:8px;margin-top:10px}
+@media (max-width:900px){.hero.hero-ms{grid-template-columns:1fr}.hero-fig{min-height:300px;order:-1}.hero-ms .stats{grid-template-columns:repeat(3,1fr)}.hero-ms h1{font-size:2rem}}
+@media (max-width:900px){header.site .in{flex-wrap:wrap;gap:10px 18px;padding:12px 16px}nav.main{display:flex;margin-left:0;order:3;width:100%;gap:18px;overflow-x:auto}.searchbox{order:2;width:100%}.searchbox input{width:100%}main{padding:14px 16px 32px}.player .seek{flex-basis:100%;order:5}.legend{margin-left:0}dl.facts{grid-template-columns:110px 1fr}}
+@media (max-width:900px){.layout>*{min-width:0}.filters{position:static}.filters select{max-width:100%}.results{overflow-x:auto}}

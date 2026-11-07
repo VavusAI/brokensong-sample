@@ -1,29 +1,33 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="robots" content="noindex"><link rel="icon" href="data:,"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Composition · BROKENSONG (sample)</title>
-<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/style.css"></head><body>
 <main>
   <div class="crumbs"><a href="browse.html">Compositions</a> › <span id="crumb"></span></div>
   <h1 id="title"></h1><div id="badges"></div>
   <div class="grid2" style="margin-top:12px"><dl class="facts" id="facts"></dl><dl class="facts" id="facts2"></dl></div>
   <div class="viewbar">
-    <div class="seg" role="tablist"><button data-v="both" class="on">Side by side</button><button data-v="score">Edition only</button><button data-v="ms">Manuscript only</button></div>
+    <div class="seg" id="view" role="tablist"><button data-v="both" class="on">Side by side</button><button data-v="score">Edition only</button><button data-v="ms">Manuscript only</button></div>
     <div class="seg" id="notation" style="display:none"><button data-n="cmn" class="on">Transcription</button><button data-n="mens">Original notation (parts)</button><button data-n="mensal">Original notation, voices aligned</button></div>
     <div class="legend" id="legend"></div>
   </div>
+  <div class="player" id="player" aria-label="Listen to the piece"></div>
   <div class="panes" id="panes">
-    <div class="pane score"><h4><span>Edition (rendered with Verovio from MEI)</span><span class="pager"><button id="prev">‹</button> <span id="pg">1/1</span> <button id="next">›</button></span></h4><div class="body" id="score"><p class="note">Loading the music engraver…</p></div></div>
+    <div class="pane score"><h4><span>Edition (rendered with Verovio from MEI)</span><span class="pager"><button id="prev" aria-label="Previous page">‹</button> <span id="pg">1/1</span> <button id="next" aria-label="Next page">›</button></span></h4><div class="body" id="score"><p class="note">Loading the music engraver…</p></div></div>
     <div class="pane ms"><h4><span id="mslabel">Manuscript (IIIF)</span><span id="mslink"></span></h4><div class="mirador-host" id="ms"></div></div>
   </div>
+  <section class="commentary" id="commentary"></section>
   <section class="texts" id="texts"></section>
 </main>
 <script src="https://cdn.jsdelivr.net/npm/verovio@4.3.1/dist/verovio-toolkit-wasm.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/mirador@3.3.0/dist/mirador.min.js"></script>
 <script src="assets/app.js"></script>
+<script src="assets/edition.js"></script>
+<script src="assets/player.js"></script>
 <script>
 BS.chrome('Compositions');
 const $ = id => document.getElementById(id);
-let tk = null, page = 1, pages = 1;
+let tk = null, page = 1, pages = 1, notation = 'cmn', meiDoc = null;
 const normFol = s => BS.fold(s).replace(/^(f|fol|folio)\.?\s*/, '').replace(/\s+/g, '').replace(/^0+/, '');
 function labelOf(c) { const l = c.label; return typeof l === 'string' ? l : (l && (l.none || l.en || Object.values(l)[0] || [])[0]) || ''; }
 async function showManuscript(c, src) {
@@ -59,6 +63,32 @@ function layout() {
   tk.setOptions({ scale, pageWidth: Math.max(600, Math.round(w * 100 / scale)), pageHeight: 60000, adjustPageHeight: true, breaks: 'auto', header: 'none', footer: 'none', pageMarginTop: 40, pageMarginLeft: 30, pageMarginRight: 30, spacingStaff: 10 });
   tk.redoLayout(); pages = tk.getPageCount(); page = Math.min(page, pages); renderPage();
 }
+// Keep an element of the score in view inside the score pane (used while playing and by commentary links).
+function follow(el, center) {
+  const box = $('score'), r = el.getBoundingClientRect(), b = box.getBoundingClientRect();
+  if (center || r.top < b.top + 30 || r.bottom > b.bottom - 40) box.scrollTo({ top: box.scrollTop + (r.top - b.top) - b.height / 3, behavior: 'smooth' });
+}
+// Open a bar of the transcription and mark it (the whole bar, or only the voices a commentary note names).
+function gotoBar(bar, staves) {
+  if (notation !== 'cmn') document.querySelector('#notation [data-n="cmn"]').click();
+  if ($('panes').classList.contains('ms-only')) document.querySelector('#view [data-v="both"]').click();
+  if (!meiDoc) meiDoc = new DOMParser().parseFromString(tk.getMEI(), 'application/xml');
+  const m = [...meiDoc.getElementsByTagName('measure')].find(x => x.getAttribute('n') === String(bar));
+  if (!m) return;
+  const mid = m.getAttribute('xml:id'), p = tk.getPageWithElement(mid);
+  if (p && p !== page) { page = p; renderPage(); }
+  const ids = staves.length ? [...m.getElementsByTagName('staff')].filter(s => staves.includes(+s.getAttribute('n'))).map(s => s.getAttribute('xml:id')) : [mid];
+  document.querySelectorAll('#score rect.flash').forEach(r => r.remove());
+  const els = ids.map(id => document.getElementById(id)).filter(Boolean);
+  for (const el of els) {
+    const b = el.getBBox(), r = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    r.setAttribute('x', b.x - 60); r.setAttribute('y', b.y - 90); r.setAttribute('width', b.width + 120); r.setAttribute('height', b.height + 180); r.setAttribute('rx', 40);
+    r.setAttribute('class', 'flash'); el.parentNode.insertBefore(r, el);
+  }
+  $('player').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  if (els[0]) setTimeout(() => follow(els[0], true), 350);
+}
+function download(name, href) { const a = document.createElement('a'); a.href = href; a.download = name; document.body.appendChild(a); a.click(); a.remove(); }
 (async () => {
   const [comps, srcs] = await Promise.all([BS.json('data/compositions.json'), BS.json('data/sources.json')]);
   const c = comps.find(x => x.id === BS.q('id')) || comps[0], src = srcs.find(s => s.siglum === c.siglum);
@@ -67,31 +97,42 @@ function layout() {
   const row = (k, v) => v ? `<dt>${k}</dt><dd>${v}</dd>` : '';
   $('facts').innerHTML = row('Composer', BS.esc(c.composer)) + row('Genre', BS.esc(c.genre)) + row('Voices', BS.esc(c.voices.join(', '))) + row('Texts', BS.esc(c.language)) + row('Length', c.bars + ' bars in the transcription');
   $('facts2').innerHTML = row('Source', src ? `<a href="source.html?id=${encodeURIComponent(src.id)}">${BS.esc(src.name)}</a>` : BS.esc(c.siglum)) + row('Folio', BS.esc(c.folio)) + row('Original clefs', BS.esc(c.clefs))
-    + row('State', c.fragmentary ? `Fragmentary: ${BS.esc(c.reconstructed_bars)} reconstructed` : 'Complete') + row('Links', [c.links.DIAMM_composition_record && `<a href="${c.links.DIAMM_composition_record}" target="_blank" rel="noopener">DIAMM composition ↗</a>`, `<a href="data/mei/${c.id}.mei" download>Download MEI</a>`].filter(Boolean).join(' · '));
+    + row('State', c.fragmentary ? `Fragmentary: ${BS.esc(c.reconstructed_bars)} reconstructed` : 'Complete')
+    + row('Links', [c.links.DIAMM_composition_record && `<a href="${c.links.DIAMM_composition_record}" target="_blank" rel="noopener">DIAMM composition ↗</a>`, '<a href="#commentary">Commentary</a>'].filter(Boolean).join(' · '))
+    + row('Download', `<a href="data/pdf/${c.id}.pdf" target="_blank" rel="noopener">PDF score</a> · <a href="#" id="midi">MIDI</a> · <a href="data/mei/${c.id}.mei" download>MEI</a>`);
   $('legend').innerHTML = c.fragmentary ? `<span><i style="background:#1f1b16"></i>Surviving in the source</span><span><i style="background:var(--recon)"></i>Editorial reconstruction</span>` : '';
   $('texts').innerHTML = '<h2 style="margin-top:.6rem">Texts</h2>' + Object.entries(c.texts).map(([v, t]) => `<h3>${BS.esc(v)}</h3><p>${BS.esc(t)}</p>`).join('');
-  document.querySelectorAll('.seg button').forEach(b => b.onclick = () => {
-    document.querySelectorAll('.seg button').forEach(x => x.classList.toggle('on', x === b));
+  document.querySelectorAll('#view button').forEach(b => b.onclick = () => {
+    document.querySelectorAll('#view button').forEach(x => x.classList.toggle('on', x === b));
     $('panes').className = 'panes' + (b.dataset.v === 'score' ? ' score-only' : b.dataset.v === 'ms' ? ' ms-only' : ''); layout();
   });
   $('prev').onclick = () => { if (page > 1) { page--; renderPage(); } }; $('next').onclick = () => { if (page < pages) { page++; renderPage(); } };
+  BSPlayer.mount($('player'), { page: p => { if (p !== page && p <= pages) { page = p; renderPage(); } }, follow: el => follow(el, false) });
   showManuscript(c, src);
   const mei = await (await fetch(`data/mei/${c.id}.mei`)).text();
   const mens = c.mensural ? await (await fetch(`data/mei/${c.mensural}`)).text() : null;
+  const head = BSEdition.header(mei);
+  $('commentary').innerHTML = '<h2>Commentary</h2>' + BSEdition.commentaryHTML(head, c, true);
+  $('commentary').querySelectorAll('a.barref').forEach(a => a.onclick = e => { e.preventDefault(); gotoBar(+a.dataset.bar, a.dataset.staves ? a.dataset.staves.split(',').map(Number) : []); });
   const start = () => {
-    tk = new verovio.toolkit(); tk.loadData(mei); layout(); window.__ready = true;
+    tk = new verovio.toolkit(); tk.loadData(mei); meiDoc = null; layout(); BSPlayer.load(tk, c.voices); window.__ready = true;
+    $('midi').onclick = e => {
+      e.preventDefault();
+      let t = tk; if (notation !== 'cmn') { t = new verovio.toolkit(); t.loadData(mei); }   // MIDI always from the transcription
+      download(`${c.id}.mid`, 'data:audio/midi;base64,' + t.renderToMIDI());
+    };
     if (mens) {
       $('notation').style.display = 'inline-flex';
       document.querySelectorAll('#notation button').forEach(btn => btn.onclick = () => {
         document.querySelectorAll('#notation button').forEach(x => x.classList.toggle('on', x === btn));
-        const n = btn.dataset.n;
-        tk.setOptions({ mensuralToMeasure: n === 'mensal' });   // Verovio aligns the mensural voices into measures
-        tk.loadData(n === 'cmn' ? mei : mens); page = 1; layout();
-        $('legend').innerHTML = n === 'cmn' ? '' : `<span>${BS.esc(c.mensural_note)}${n === 'mensal' ? ' Voices aligned by Verovio (mensuralToMeasure).' : ''}</span>`;
+        notation = btn.dataset.n;
+        tk.setOptions({ mensuralToMeasure: notation === 'mensal' });   // Verovio aligns the mensural voices into measures
+        tk.loadData(notation === 'cmn' ? mei : mens); meiDoc = null; page = 1; layout(); BSPlayer.load(tk, c.voices);
+        $('legend').innerHTML = notation === 'cmn' ? '' : `<span>${BS.esc(c.mensural_note)}${notation === 'mensal' ? ' Voices aligned by Verovio (mensuralToMeasure).' : ''}</span>`;
       });
     }
   };
   if (verovio.module.calledRun) start(); else verovio.module.onRuntimeInitialized = start;
-  addEventListener('resize', () => layout());
+  let rt = 0; addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(layout, 150); });
 })();
 </script></body></html>

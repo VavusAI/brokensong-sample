@@ -16,7 +16,7 @@ const BS = {
       <form class="searchbox" action="browse.html"><input name="q" type="search" placeholder="Search titles and texts" aria-label="Search"></form></div></header>`);
     document.body.insertAdjacentHTML('beforeend', `<footer class="site"><div class="in">
       Working sample prepared by DCI Brands LLC for Maynooth University tender PCO 543 (not the project's site). Music encodings: <i>Measuring Polyphony</i>, ed. Karen Desmond (CC BY 3.0);
-      one passage marked as reconstructed for demonstration. Source data: DIAMM public API. Manuscript images remain with their holding libraries.</div></footer>`);
+      one passage marked as reconstructed for demonstration. Source data: DIAMM public API. Manuscript images remain with their holding libraries; home picture: British Library (CC0). Choir sound: FluidR3 GM (CC BY 3.0).</div></footer>`);
   },
   badgeRow(c) {
     return `${c.fragmentary ? '<span class="badge frag">Fragmentary · reconstruction shown</span>' : ''}${c.iiif ? '<span class="badge img">Manuscript images</span>' : ''}<span class="badge">${c.nvoices} voices</span>${c.language ? `<span class="badge">${BS.esc(c.language)}</span>` : ''}`;

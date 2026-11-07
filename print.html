@@ -1,0 +1,70 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="robots" content="noindex"><link rel="icon" href="data:,"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Score · BROKENSONG (sample)</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+<!-- Printable score of one piece. The build turns this page into data/pdf/<id>.pdf; readers can also print it from the browser. -->
+<style>
+  @page { size: A4; margin: 16mm 15mm 18mm; }
+  html, body { margin: 0; background: #fff; color: #1f1b16; font: 10pt/1.45 "Source Sans 3", system-ui, sans-serif; }
+  main { max-width: 180mm; margin: 0 auto; }
+  .brand { font: 600 8pt "Source Sans 3", sans-serif; letter-spacing: .14em; text-transform: uppercase; color: #9e2b25; margin: 0 0 2mm; }
+  h1 { font: 500 23pt/1.1 "EB Garamond", Georgia, serif; margin: 0 0 1.5mm; }
+  .sub { color: #6b6257; margin: 0 0 3mm; }
+  .facts { display: grid; grid-template-columns: 30mm 1fr 30mm 1fr; gap: .6mm 3mm; font-size: 9pt; border-top: .3mm solid #ddd3c2; border-bottom: .3mm solid #ddd3c2; padding: 2mm 0; margin-bottom: 4mm; }
+  .facts dt { color: #6b6257; } .facts dd { margin: 0; }
+  .legend { font-size: 8.5pt; color: #6b6257; margin: -2mm 0 3mm; } .legend i { display: inline-block; width: 6mm; height: 2.4mm; border-radius: .5mm; vertical-align: middle; margin: 0 1.5mm 0 4mm; }
+  .sys { break-inside: avoid; margin: 0 0 2mm; } .sys svg { display: block; width: 100%; height: auto; }
+  g.supplied, g.supplied * { fill: #b8461f !important; stroke: #b8461f !important; }
+  h2 { font: 500 14pt "EB Garamond", Georgia, serif; margin: 6mm 0 1.5mm; break-after: avoid; }
+  h3 { font: 600 10pt "Source Sans 3", sans-serif; margin: 3mm 0 1mm; break-after: avoid; text-transform: none; }
+  .texts h3 { text-transform: capitalize; } .texts p { font: 11pt/1.45 "EB Garamond", Georgia, serif; margin: 0 0 2mm; }
+  .comm p, .comm li { margin: 0 0 1.2mm; } .comm ul { padding-left: 5mm; margin: 0; } .comm .hint { color: #6b6257; font-size: 8.5pt; }
+  .comm .credit, .foot { color: #6b6257; font-size: 8.5pt; border-top: .3mm solid #ddd3c2; padding-top: 2mm; margin-top: 3mm; }
+  code { font-size: 8.5pt; }
+  @media screen { body { background: #e9e4da; } main { background: #fff; padding: 16mm 15mm; margin: 8mm auto; box-shadow: 0 1px 6px rgba(0,0,0,.15); } }
+  @media screen and (max-width: 700px) { main { padding: 16px; margin: 0; max-width: none; } .facts { grid-template-columns: 26mm 1fr; } }
+</style></head><body>
+<main>
+  <p class="brand">Brokensong · online edition (sample)</p>
+  <h1 id="title"></h1>
+  <p class="sub" id="sub"></p>
+  <dl class="facts" id="facts"></dl>
+  <p class="legend" id="legend"></p>
+  <div id="music"><p>Engraving the score…</p></div>
+  <section class="comm" id="comm"></section>
+  <section class="texts" id="texts"></section>
+  <p class="foot" id="foot"></p>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/verovio@4.3.1/dist/verovio-toolkit-wasm.js"></script>
+<script src="assets/app.js"></script>
+<script src="assets/edition.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+(async () => {
+  const [comps, srcs] = await Promise.all([BS.json('data/compositions.json'), BS.json('data/sources.json')]);
+  const c = comps.find(x => x.id === BS.q('id')) || comps[0], src = srcs.find(s => s.siglum === c.siglum);
+  document.title = `${c.title} · BROKENSONG (sample)`;
+  $('title').textContent = c.title;
+  $('sub').textContent = `${c.composer || 'Anonymous'} · ${c.genre || ''} · ${src ? src.name : c.siglum}${c.folio ? ', f. ' + c.folio : ''}`;
+  const row = (k, v) => v ? `<dt>${k}</dt><dd>${BS.esc(v)}</dd>` : '';
+  $('facts').innerHTML = row('Voices', c.voices.join(', ')) + row('Original clefs', c.clefs) + row('Texts', c.language) + row('Length', `${c.bars} bars`)
+    + row('Source', src ? `${src.name}${src.date ? ' (' + src.date + ')' : ''}` : c.siglum) + row('State', c.fragmentary ? `Fragmentary: ${c.reconstructed_bars} reconstructed` : 'Complete');
+  $('legend').innerHTML = c.fragmentary ? '<i style="background:#1f1b16"></i>Surviving in the source <i style="background:#b8461f"></i>Editorial reconstruction' : '';
+  const mei = await (await fetch(`data/mei/${c.id}.mei`)).text();
+  $('comm').innerHTML = '<h2>Commentary</h2>' + BSEdition.commentaryHTML(BSEdition.header(mei), c, false);
+  $('texts').innerHTML = '<h2>Texts</h2>' + Object.entries(c.texts).map(([v, t]) => `<h3>${BS.esc(v)}</h3><p>${BS.esc(t)}</p>`).join('');
+  $('foot').innerHTML = `Online edition: https://vavusai.github.io/brokensong-sample/composition.html?id=${encodeURIComponent(c.id)} · Working sample by DCI Brands LLC for Maynooth University tender PCO 543; not the BROKENSONG project's edition. Music encoding: <i>Measuring Polyphony</i>, ed. Karen Desmond (CC BY 3.0); engraved with Verovio.`;
+  const go = async () => {
+    const tk = new verovio.toolkit();
+    // A very small page height makes Verovio put each system on its own "page"; the browser then paginates the systems.
+    tk.setOptions({ pageWidth: 2600, pageHeight: 100, adjustPageHeight: true, breaks: 'auto', scale: 100, header: 'none', footer: 'none',
+      pageMarginTop: 10, pageMarginBottom: 10, pageMarginLeft: 0, pageMarginRight: 0, spacingStaff: 10, spacingSystem: 6 });
+    tk.loadData(mei);
+    const n = tk.getPageCount(); let html = '';
+    for (let i = 1; i <= n; i++) html += `<div class="sys">${tk.renderToSVG(i)}</div>`;
+    $('music').innerHTML = html;
+    await document.fonts.ready;
+    window.__printReady = n;
+  };
+  if (verovio.module.calledRun) go(); else verovio.module.onRuntimeInitialized = go;
+})();
+</script></body></html>

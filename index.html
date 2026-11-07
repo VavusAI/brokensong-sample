@@ -3,11 +3,18 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/style.css"></head><body>
 <main>
-  <section class="hero">
-    <div><h1>Medieval polyphony from its broken books</h1>
-      <p class="lead">Explore the sources and compositions of insular polyphony: read each piece as a modern score beside the manuscript page it survives on, search its texts, and see clearly what survives and what has been reconstructed.</p>
-      <p><a href="browse.html"><b>Browse the compositions →</b></a> &nbsp; <a href="browse.html?tab=sources"><b>Browse the sources →</b></a></p></div>
-    <div class="stats" id="stats"></div>
+  <section class="hero hero-ms">
+    <div class="hero-text">
+      <p class="kicker">Online edition · working sample</p>
+      <h1>Medieval polyphony from its broken books</h1>
+      <p class="lead">Explore the sources and compositions of insular polyphony: read each piece as a modern score beside the manuscript page it survives on, listen to it, follow the editors' commentary bar by bar, search its texts, and see clearly what survives and what has been reconstructed.</p>
+      <p class="cta"><a class="btn" href="browse.html">Browse the compositions</a><a class="btn ghost" href="browse.html?tab=sources">Browse the sources</a></p>
+      <div class="stats" id="stats"></div>
+    </div>
+    <figure class="hero-fig">
+      <img src="assets/img/harley978-f11v.jpg" width="800" height="1179" alt="Manuscript page of Sumer is icumen in: red-ruled staves of square black notes, with the English text written in black and a Latin text in red beneath it.">
+      <figcaption>London, British Library, Harley MS 978, f. 11v: <i>Sumer is icumen in</i>, England, mid-13th century. Image: British Library, <a href="https://commons.wikimedia.org/wiki/File:Sumer_is_icumen_in_-_Summer_Canon_(Reading_Rota)_(mid_13th_C),_f.11v_-_BL_Harley_MS_978.jpg" target="_blank" rel="noopener">public domain (CC0)</a>.</figcaption>
+    </figure>
   </section>
   <h2>Featured</h2>
   <div class="cards" id="featured"></div>
@@ -22,7 +29,7 @@ BS.chrome('Home');
   const pct = Math.round(100 * s.fragmentary / s.compositions);
   document.getElementById('stats').innerHTML = [
     [s.compositions, 'compositions'], [s.sources, 'manuscript sources'], [s.with_images, 'linked to page images'],
-    [s.voices3, 'for three voices'], [s.voices4, 'for four voices'], [pct + '%', 'incomplete (with reconstruction)']]
+    [s.voices3, 'for three voices'], [s.voices4, 'for four voices'], [pct + '%', 'incomplete, with reconstruction']]
     .map(([n, t]) => `<div class="stat"><b>${n}</b><span>${t}</span></div>`).join('');
   const pick = ['305', 'flos', 'adesto'].map(id => comps.find(c => c.id === id)).filter(Boolean);
   document.getElementById('featured').innerHTML = pick.map(c => `<a class="card" href="composition.html?id=${c.id}">
